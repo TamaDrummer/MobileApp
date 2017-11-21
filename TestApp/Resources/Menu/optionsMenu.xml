@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+  android:id="@+id/file_settings"
+  android:icon="@drawable/ic_action"
+  android:title="Settings"
+  android:showAsAction="ifRoom">
+    <menu>
+      <item
+      android:id="@+id/new_game1"
+      android:icon="@drawable/ic_dashboard"
+      android:title="New File Settings"
+/>
+      <item
+      android:id="@+id/help"
+      android:icon="@drawable/ic_event"
+      android:title="Help"
+/>
+      <item
+      android:id="@+id/about_app"
+      android:icon="@drawable/ic_forum"
+      android:title="About app"/>
+    </menu>
+  </item>
+</menu>
