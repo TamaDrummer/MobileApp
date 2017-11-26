@@ -2231,8 +2231,11 @@ namespace TestApp
 			// aapt resource value: 0x7f0200a5
 			public const int mr_ic_play_light = 2130837669;
 			
+			// aapt resource value: 0x7f0200a7
+			public const int notification_template_icon_bg = 2130837671;
+			
 			// aapt resource value: 0x7f0200a6
-			public const int notification_template_icon_bg = 2130837670;
+			public const int raspberrypi = 2130837670;
 			
 			static Drawable()
 			{

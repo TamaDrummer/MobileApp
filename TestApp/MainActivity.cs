@@ -8,6 +8,7 @@ using Android.Content;
 using Android.Runtime;
 using System.Diagnostics;
 using System.Timers;
+using WebSocketSharp;
 
 namespace TestApp
 {
@@ -16,13 +17,21 @@ namespace TestApp
     {
         private bool btnClicked = false;
         private bool msgReceived = false;
+        private bool connected = false;
         bool gpiobuttonpressed = false;
+
       
-        RaspData raspdata; 
+        RaspData raspdata;
+        JsonData jsondata;
+
         TextView tvRaspTemp;
         TextView tvRaspHum;
         TextView tvRaspSysData;
         Timer timer;
+        Button btngpio;
+        Button btnSensorData;
+        Button btnRaspDisconnect;
+        Button btnRaspConnect;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -42,10 +51,10 @@ namespace TestApp
             Button showPopupMenu = FindViewById<Button>(Resource.Id.popupbutton);
             Button nextMenuButton = FindViewById<Button>(Resource.Id.nextmenubutton);
 
-            Button btnRaspConnect = FindViewById<Button>(Resource.Id.buttonConnect);
-            Button btnRaspDiconnect = FindViewById<Button>(Resource.Id.buttonDisconnect);
-            Button btnSensorData = FindViewById<Button>(Resource.Id.buttonSensorData);
-            Button btngpio = FindViewById<Button>(Resource.Id.buttongpio);
+            btnRaspConnect = FindViewById<Button>(Resource.Id.buttonConnect);
+            btnRaspDisconnect = FindViewById<Button>(Resource.Id.buttonDisconnect);
+            btnSensorData = FindViewById<Button>(Resource.Id.buttonSensorData);
+            btngpio = FindViewById<Button>(Resource.Id.buttongpio);
 
             tvRaspHum = FindViewById<TextView>(Resource.Id.textViewHumidity);
             tvRaspTemp = FindViewById<TextView>(Resource.Id.textViewTemperature);
@@ -54,19 +63,17 @@ namespace TestApp
 
 
 
-            btnRaspConnect.Click += (s, arg) =>
+            btnRaspConnect.Click += (s,arg) =>
             {
-                raspdata.Connect();
-                if(raspdata.connected)
-                {
-                    btngpio.Enabled = true;
-                }
+                Task.Factory.StartNew(ConnectToRasp);
             };
 
-            btnRaspDiconnect.Click += (s, arg) =>
+            btnRaspDisconnect.Click += (s, arg) =>
             {
-                raspdata.Disconnect();
-                if(raspdata.disconnected)
+                if(raspdata.connected)
+                    raspdata.Disconnect();
+
+                else 
                 {
                     btngpio.Enabled = false;
                 }
@@ -100,14 +107,10 @@ namespace TestApp
             };
 
             raspdata.OnMessageReceived += a_MessageReceived;
+            raspdata.OnErrorDetected += a_ErrorDetected;
+            raspdata.OnConnection += a_connected;
+            raspdata.OnDisconnection += a_disconnected;
 
-
-
-
-
-            
-            
-            
              
 
             showPopupMenu.Click += (s, arg) =>
@@ -153,7 +156,7 @@ namespace TestApp
         {
             base.OnResume();
             timer = new Timer();
-            timer.Interval = 20000;
+            timer.Interval = 1000;
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
 
@@ -161,6 +164,38 @@ namespace TestApp
         }
         //alarmManager.Set(AlarmType.ElapsedRealtime, SystemClock.ElapsedRealtime() + 3 * 1000, pending);
 
+           
+        private void ConnectToRasp()
+        {
+
+                raspdata.Connect();
+              
+
+                if (raspdata.connectionError || raspdata.connected == false)
+                {
+                    RunOnUiThread(() =>
+                    {
+                        btngpio.Enabled = false;
+                        btnRaspDisconnect.Enabled = false;
+                        btnSensorData.Enabled = false;
+
+                    });
+
+
+
+                }
+                else if (raspdata.connected)
+                {
+                    RunOnUiThread(() =>
+                    {
+                        btnSensorData.Enabled = true;
+                        btnRaspDisconnect.Enabled = true;
+                        btngpio.Enabled = true;
+                    });
+                }
+ 
+            
+        }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
@@ -185,10 +220,10 @@ namespace TestApp
 
                 Task.Run(async () =>
                 {
-                    raspdata.sendMessage("video");
-                    await Task.Delay(10000);
-                    /*raspdata.sendMessage("sysinfo");
+                    //raspdata.sendMessage("video");
                     await Task.Delay(1000);
+                    raspdata.sendMessage("sysinfo");
+                    /*await Task.Delay(1000);
                     raspdata.sendMessage("gpioon");
                     await Task.Delay(1000); 
                     raspdata.sendMessage("hum");
@@ -202,6 +237,42 @@ namespace TestApp
 
             }
         }
+
+        public void a_ErrorDetected(object sender, EventArgs e)
+        {
+            connected = false;
+            RunOnUiThread(() =>
+            {
+                btngpio.Enabled = false;
+                btnRaspDisconnect.Enabled = false;
+                btnSensorData.Enabled = false;
+
+            });
+        }
+
+        public void a_connected(object sender, EventArgs e)
+        {
+            connected = true;
+            RunOnUiThread(() =>
+            {
+                 btnSensorData.Enabled = true;
+                 btnRaspDisconnect.Enabled = true;
+                 btngpio.Enabled = true;
+            });
+            
+
+        }
+        public void a_disconnected(object sender, EventArgs e)
+        {
+            RunOnUiThread(() =>
+            {
+                btnSensorData.Enabled = false;
+                btnRaspDisconnect.Enabled = false;
+                btngpio.Enabled = false;
+            });
+        }
+
+
 
         public void a_MessageReceived(object sender, EventArgs e)
         {
@@ -227,6 +298,11 @@ namespace TestApp
                 }
                 else if (message.Contains("Sysinfo"))
                 {
+
+
+                    //string hum = data[""][""];
+
+
                     RunOnUiThread(() =>
                     {
                         tvRaspSysData.Text = message;

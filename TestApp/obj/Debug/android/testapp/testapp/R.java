@@ -2567,7 +2567,8 @@ containing a value of this type.
         public static final int mr_ic_pause_light=0x7f0200a3;
         public static final int mr_ic_play_dark=0x7f0200a4;
         public static final int mr_ic_play_light=0x7f0200a5;
-        public static final int notification_template_icon_bg=0x7f0200a6;
+        public static final int notification_template_icon_bg=0x7f0200a7;
+        public static final int raspberrypi=0x7f0200a6;
     }
     public static final class id {
         public static final int about_app=0x7f0700ae;

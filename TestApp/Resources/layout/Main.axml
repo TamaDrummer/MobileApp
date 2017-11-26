@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minWidth="25px"
-    android:minHeight="25px">
+    android:minHeight="25px"
+    android:background="@drawable/raspberrypi">
     <Button
         android:text="Show Pop Up Menu"
         android:layout_width="match_parent"
@@ -34,12 +35,14 @@
         android:text="Temperature"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewTemperature" />
+        android:id="@+id/textViewTemperature"
+        android:background="@color/dim_foreground_disabled_material_light" />
     <TextView
         android:text="Humidity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewHumidity" />
+        android:id="@+id/textViewHumidity"
+        android:background="@color/dim_foreground_disabled_material_light" />
     <Button
         android:text="GPIO ON"
         android:layout_width="match_parent"
@@ -50,5 +53,6 @@
         android:text="SysData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewSysData" />
+        android:id="@+id/textViewSysData"
+        android:background="@color/dim_foreground_disabled_material_light" />
 </LinearLayout>
